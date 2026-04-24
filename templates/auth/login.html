@@ -1,0 +1,130 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iniciar sesión — FAMEL S.A.S</title>
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+</head>
+<body>
+
+<div class="login-bg">
+  <!-- Elementos de fondo decorativos -->
+  <div class="bg-glow-1"></div>
+  <div class="bg-glow-2"></div>
+
+  <div class="login-wrapper">
+
+    <!-- Panel izquierdo: Branding -->
+    <div class="brand-panel">
+      <div class="brand-logo">
+        <div class="brand-logo-sq">F</div>
+        <div class="brand-logo-text">
+          <h1>FAMEL S.A.S</h1>
+          <p>Tableros eléctricos certificados</p>
+        </div>
+      </div>
+
+      <div class="brand-tagline">
+        <div class="brand-tagline-badge">⚡ Sistema de Gestión</div>
+        <h2>Inventario y <span>pedidos</span> en tiempo real</h2>
+        <p>Control integrado de stock, producción y ventas para el equipo FAMEL.</p>
+      </div>
+
+      <div class="brand-footer">EAFIT · SISTEMAS DE INFORMACIÓN · 2026</div>
+    </div>
+
+    <!-- Panel derecho: Formulario -->
+    <div class="form-panel">
+      <h3>Iniciar sesión</h3>
+      <p>Ingresa con tus credenciales para acceder al sistema</p>
+
+      <!-- Mensajes de error -->
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }}" style="margin-bottom: 16px;">
+            ❌ {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+
+      <!-- Formulario de login -->
+      <form method="post" action="{% url 'login' %}">
+        {% csrf_token %}
+
+        <!-- Campo usuario -->
+        <div class="login-field">
+          <label for="{{ form.username.id_for_label }}">Usuario</label>
+          <div class="login-field-wrap">
+            <span class="login-field-icon">👤</span>
+            {{ form.username }}
+          </div>
+          {% if form.username.errors %}
+            <ul class="errorlist">
+              {% for error in form.username.errors %}<li>{{ error }}</li>{% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+
+        <!-- Campo contraseña -->
+        <div class="login-field">
+          <label for="{{ form.password.id_for_label }}">Contraseña</label>
+          <div class="login-field-wrap">
+            <span class="login-field-icon">🔒</span>
+            {{ form.password }}
+          </div>
+          {% if form.password.errors %}
+            <ul class="errorlist">
+              {% for error in form.password.errors %}<li>{{ error }}</li>{% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+
+        <!-- Error general (credenciales incorrectas) -->
+        {% if form.non_field_errors %}
+          <div class="alert alert-error" style="margin-bottom: 12px;">
+            ❌ {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+          </div>
+        {% endif %}
+
+        <button type="submit" class="btn-login">🔐 Ingresar al Sistema</button>
+      </form>
+
+      <!-- Credenciales de prueba -->
+      <div class="divider">
+        <hr><span>credenciales de prueba</span><hr>
+      </div>
+
+      <div class="test-creds">
+        <p>🔑 Accesos disponibles</p>
+        <div class="cred-row">
+          <span class="cred-badge admin">ADMIN</span>
+          <span class="cred-text">admin / famel2026</span>
+        </div>
+        <div class="cred-row">
+          <span class="cred-badge vendor">VENDEDOR</span>
+          <span class="cred-text">vendedor1 / famel2026</span>
+        </div>
+        <!-- Credencial de operario — destacada con borde -->
+        <div class="cred-row" style="
+          background: rgba(52,211,153,0.06);
+          border: 1px solid rgba(52,211,153,0.25);
+          border-radius: 6px;
+          padding: 5px 8px;
+          margin-top: 4px;
+        ">
+          <span class="cred-badge worker">OPERARIO</span>
+          <span class="cred-text" style="color:#a7f3d0; font-weight:700;">
+            operario1 / famel2026
+          </span>
+          <span style="font-size:9px; color:#34d399; margin-left:auto;">← prueba</span>
+        </div>
+      </div>
+
+    </div><!-- form-panel -->
+  </div><!-- login-wrapper -->
+</div><!-- login-bg -->
+
+</body>
+</html>

@@ -1,0 +1,138 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}FAMEL S.A.S{% endblock %} — Sistema de Gestión</title>
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- ════ SIDEBAR ════════════════════════════════════════════════════════ -->
+  <aside class="sidebar">
+
+    <!-- Logo -->
+    <div class="sidebar-logo">
+      <div class="logo-sq">F</div>
+      <div>
+        <div class="logo-label">FAMEL S.A.S</div>
+        <div class="logo-sub">Tableros eléctricos</div>
+      </div>
+    </div>
+
+    <!-- Navegación -->
+    <nav>
+
+      <!-- Siempre visible -->
+      <div class="nav-section">
+        <div class="nav-label">General</div>
+        <a href="{% url 'dashboard' %}"
+           class="nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+          <span class="nav-icon">🏠</span> Dashboard
+        </a>
+      </div>
+
+      <!-- Inventario — visible para ADMIN y OPERARIO -->
+      {% if request.user.is_superuser or request.user.perfil.rol in 'ADMIN,OPERARIO' %}
+      <div class="nav-section">
+        <div class="nav-label">Inventario</div>
+        <a href="{% url 'lista_productos' %}"
+           class="nav-item {% if 'producto' in request.resolver_match.url_name %}active{% endif %}">
+          <span class="nav-icon">📦</span> Productos
+        </a>
+        <a href="{% url 'lista_movimientos' %}"
+           class="nav-item {% if 'movimiento' in request.resolver_match.url_name %}active{% endif %}">
+          <span class="nav-icon">📋</span> Movimientos
+        </a>
+        <a href="{% url 'crear_movimiento' %}"
+           class="nav-item {% if request.resolver_match.url_name == 'crear_movimiento' %}active{% endif %}">
+          <span class="nav-icon">➕</span> Nuevo mov.
+        </a>
+      </div>
+      {% endif %}
+
+      <!-- Ventas — visible para ADMIN y VENDEDOR -->
+      {% if request.user.is_superuser or request.user.perfil.rol in 'ADMIN,VENDEDOR' %}
+      <div class="nav-section">
+        <div class="nav-label">Ventas</div>
+        <a href="{% url 'lista_pedidos' %}"
+           class="nav-item {% if 'pedido' in request.resolver_match.url_name %}active{% endif %}">
+          <span class="nav-icon">🛒</span> Pedidos
+        </a>
+        <a href="{% url 'crear_pedido' %}"
+           class="nav-item {% if request.resolver_match.url_name == 'crear_pedido' %}active{% endif %}">
+          <span class="nav-icon">📝</span> Nuevo pedido
+        </a>
+        <a href="{% url 'lista_clientes' %}"
+           class="nav-item {% if 'cliente' in request.resolver_match.url_name %}active{% endif %}">
+          <span class="nav-icon">👥</span> Clientes
+        </a>
+      </div>
+      {% endif %}
+
+    </nav>
+
+    <!-- Footer del sidebar con info del usuario -->
+    <div class="sidebar-footer">
+      <div class="user-chip">
+        <div class="user-avatar">
+          {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
+        </div>
+        <div>
+          <div class="user-name">{{ request.user.get_full_name|default:request.user.username }}</div>
+          <div class="user-role">
+            {% if request.user.is_superuser %}
+              Superusuario
+            {% else %}
+              {{ request.user.perfil.get_rol_display }}
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      <a href="{% url 'logout' %}" class="btn-logout">🚪 Cerrar sesión</a>
+    </div>
+
+  </aside>
+  <!-- ════ FIN SIDEBAR ════════════════════════════════════════════════════ -->
+
+  <!-- ════ CONTENIDO PRINCIPAL ════════════════════════════════════════════ -->
+  <main class="main-content">
+
+    <!-- Topbar -->
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">{% block page_title %}FAMEL S.A.S{% endblock %}</div>
+        <div class="topbar-sub">{% block page_sub %}Sistema de Gestión de Inventario y Pedidos{% endblock %}</div>
+      </div>
+      {% block topbar_actions %}{% endblock %}
+    </div>
+
+    <!-- Mensajes del sistema -->
+    {% if messages %}
+    <div class="messages-container">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+          {% if message.tags == 'success' %}✅{% elif message.tags == 'error' %}❌{% elif message.tags == 'warning' %}⚠️{% else %}ℹ️{% endif %}
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Contenido de cada vista -->
+    <div class="page">
+      {% block content %}{% endblock %}
+    </div>
+
+  </main>
+  <!-- ════ FIN CONTENIDO ═══════════════════════════════════════════════════ -->
+
+</div><!-- app-shell -->
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>

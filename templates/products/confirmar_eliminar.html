@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Eliminar Producto{% endblock %}
+{% block page_title %}Eliminar Producto{% endblock %}
+{% block page_sub %}Confirmar eliminación{% endblock %}
+
+{% block content %}
+
+<div class="card" style="max-width: 500px;">
+  <div style="text-align:center; padding: 12px 0 20px;">
+    <div style="font-size: 40px; margin-bottom: 14px;">🗑️</div>
+    <h2 style="font-size: 18px; margin-bottom: 8px;">¿Eliminar este producto?</h2>
+    <p class="text-muted" style="margin-bottom: 20px;">
+      El producto <strong>{{ producto.nombre }}</strong> será desactivado (soft delete).
+      Los movimientos e ítems de pedido asociados se conservan.
+    </p>
+
+    <div class="card" style="background: var(--card2); margin-bottom: 20px; text-align: left;">
+      <div style="font-size: 13px; color: var(--muted2);">
+        <div><strong>Nombre:</strong> {{ producto.nombre }}</div>
+        <div style="margin-top:4px;"><strong>Stock actual:</strong> {{ producto.stock_actual }} {{ producto.get_unidad_display }}</div>
+        <div style="margin-top:4px;"><strong>Tipo:</strong> {{ producto.get_tipo_display }}</div>
+      </div>
+    </div>
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-actions" style="justify-content: center;">
+        <button type="submit" class="btn btn-danger">🗑️ Sí, eliminar</button>
+        <a href="{% url 'lista_productos' %}" class="btn btn-secondary">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

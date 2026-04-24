@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_sub %}Bienvenido al sistema de gestión FAMEL S.A.S{% endblock %}
+
+{% block content %}
+
+<!-- ── Stat cards ──────────────────────────────────────────────────────────── -->
+<div class="stats-row">
+  <div class="stat-card">
+    <div class="stat-icon">📦</div>
+    <div class="stat-value">{{ total_productos }}</div>
+    <div class="stat-label">Productos activos</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon">🛒</div>
+    <div class="stat-value">{{ total_pedidos }}</div>
+    <div class="stat-label">Total pedidos</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon">⏳</div>
+    <div class="stat-value">{{ pedidos_pendientes }}</div>
+    <div class="stat-label">Pedidos pendientes</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon">🔧</div>
+    <div class="stat-value">{{ pedidos_en_proceso }}</div>
+    <div class="stat-label">En proceso</div>
+  </div>
+</div>
+
+<!-- ── Alerta de bajo stock ────────────────────────────────────────────────── -->
+{% if bajo_stock %}
+<div class="low-stock-alert">
+  ⚠️ <strong>Bajo stock:</strong>
+  {% for p in bajo_stock %}
+    <span>{{ p.nombre }} ({{ p.stock_actual }} {{ p.get_unidad_display }}){% if not forloop.last %}, {% endif %}</span>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- ── Grids de resumen ────────────────────────────────────────────────────── -->
+<div class="grid-2">
+
+  <!-- Últimos movimientos -->
+  <div class="card">
+    <div class="card-title">📋 Movimientos recientes</div>
+    {% if ultimos_movimientos %}
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Tipo</th>
+            <th>Cant.</th>
+            <th>Fecha</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for mov in ultimos_movimientos %}
+          <tr>
+            <td>{{ mov.producto.nombre }}</td>
+            <td>
+              <span class="badge badge-{{ mov.tipo|lower }}">{{ mov.get_tipo_display }}</span>
+            </td>
+            <td class="text-mono">{{ mov.cantidad }}</td>
+            <td class="text-muted fs-12">{{ mov.fecha|date:"d/m H:i" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="icon">📭</div>
+      <p>Sin movimientos registrados</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Pedidos recientes -->
+  <div class="card">
+    <div class="card-title">🛒 Pedidos recientes</div>
+    {% if ultimos_pedidos %}
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>N° Pedido</th>
+            <th>Cliente</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for pedido in ultimos_pedidos %}
+          <tr>
+            <td>
+              <a href="{% url 'detalle_pedido' pedido.pk %}" class="text-orange text-mono fw-700">
+                {{ pedido.numero }}
+              </a>
+            </td>
+            <td class="fs-12">{{ pedido.cliente.nombre }}</td>
+            <td>
+              <span class="badge badge-{{ pedido.estado_color }}">{{ pedido.get_estado_display }}</span>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="icon">📭</div>
+      <p>Sin pedidos registrados</p>
+    </div>
+    {% endif %}
+  </div>
+
+</div><!-- grid-2 -->
+
+{% endblock %}

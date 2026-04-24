@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ pedido.numero }}{% endblock %}
+{% block page_title %}{{ pedido.numero }}{% endblock %}
+{% block page_sub %}Detalle del pedido · {{ pedido.cliente.nombre }}{% endblock %}
+
+{% block topbar_actions %}
+  <a href="{% url 'lista_pedidos' %}" class="btn btn-secondary">← Volver a pedidos</a>
+{% endblock %}
+
+{% block content %}
+
+<div class="grid-2" style="align-items: start;">
+
+  <!-- ── Información del pedido ── -->
+  <div class="card">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+      <div class="card-title" style="margin-bottom:0;">📄 Información del Pedido</div>
+      <span class="badge badge-{{ pedido.estado_color }}" style="font-size: 12px;">
+        {{ pedido.get_estado_display }}
+      </span>
+    </div>
+
+    <div class="detail-grid">
+      <div class="detail-row">
+        <label>Cliente</label>
+        <span class="fw-700">{{ pedido.cliente.nombre }}</span>
+      </div>
+      <div class="detail-row">
+        <label>NIT / Cédula</label>
+        <span>{{ pedido.cliente.nit|default:"—" }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Teléfono</label>
+        <span>{{ pedido.cliente.telefono|default:"—" }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Correo</label>
+        <span>{{ pedido.cliente.email|default:"—" }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Fecha de pedido</label>
+        <span>{{ pedido.fecha_pedido|date:"d/m/Y H:i" }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Entrega estimada</label>
+        <span>{{ pedido.fecha_entrega|date:"d/m/Y"|default:"No definida" }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Registrado por</label>
+        <span>{{ pedido.registrado_por.get_full_name|default:pedido.registrado_por.username|default:"—" }}</span>
+      </div>
+      {% if pedido.observaciones %}
+      <div class="detail-row" style="grid-column: 1 / -1;">
+        <label>Observaciones</label>
+        <span>{{ pedido.observaciones }}</span>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Actualizar estado -->
+    <div style="border-top: 1px solid var(--border); padding-top: 14px; margin-top: 4px;">
+      <div class="card-title" style="margin-bottom: 10px;">🔄 Actualizar Estado</div>
+      <form method="post" action="{% url 'actualizar_estado_pedido' pedido.pk %}"
+            style="display: flex; gap: 10px; align-items: flex-end;">
+        {% csrf_token %}
+        <div class="field" style="flex: 1; margin-bottom: 0;">
+          {{ estado_form.estado }}
+        </div>
+        <button type="submit" class="btn btn-primary">✅ Actualizar</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ── Ítems del pedido ── -->
+  <div class="card">
+    <div class="card-title">📦 Productos del Pedido</div>
+
+    {% if items %}
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Unidad</th>
+            <th>Especificación</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in items %}
+          <tr>
+            <td class="text-muted text-mono">{{ forloop.counter }}</td>
+            <td class="fw-700">{{ item.producto.nombre }}</td>
+            <td class="text-mono">{{ item.cantidad }}</td>
+            <td class="text-muted">{{ item.producto.get_unidad_display }}</td>
+            <td class="text-muted fs-12">{{ item.especificacion|default:"—" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="icon">📭</div>
+      <p>Sin ítems registrados.</p>
+    </div>
+    {% endif %}
+
+  </div>
+
+</div><!-- grid-2 -->
+
+{% endblock %}

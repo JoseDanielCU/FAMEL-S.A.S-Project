@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}Pedidos{% endblock %}
+{% block page_title %}Pedidos de Clientes{% endblock %}
+{% block page_sub %}HU5 — Gestión de pedidos y seguimiento de estado{% endblock %}
+
+{% block topbar_actions %}
+  <a href="{% url 'crear_pedido' %}" class="btn btn-primary">📝 Nuevo Pedido</a>
+{% endblock %}
+
+{% block content %}
+
+<!-- Filtros por estado -->
+<form method="get" class="filter-bar">
+  <select name="estado">
+    <option value="">Todos los estados</option>
+    {% for value, label in estado_choices %}
+      <option value="{{ value }}" {% if estado_filtro == value %}selected{% endif %}>{{ label }}</option>
+    {% endfor %}
+  </select>
+  <button type="submit" class="btn btn-secondary">Filtrar</button>
+  {% if estado_filtro %}
+    <a href="{% url 'lista_pedidos' %}" class="btn btn-secondary">✕ Limpiar</a>
+  {% endif %}
+</form>
+
+{% if pedidos %}
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>N° Pedido</th>
+        <th>Cliente</th>
+        <th>Estado</th>
+        <th>Fecha pedido</th>
+        <th>Entrega estim.</th>
+        <th>Registrado por</th>
+        <th>Ver</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for pedido in pedidos %}
+      <tr>
+        <td>
+          <a href="{% url 'detalle_pedido' pedido.pk %}" class="text-orange text-mono fw-700">
+            {{ pedido.numero }}
+          </a>
+        </td>
+        <td class="fw-700">{{ pedido.cliente.nombre }}</td>
+        <td>
+          <span class="badge badge-{{ pedido.estado_color }}">{{ pedido.get_estado_display }}</span>
+        </td>
+        <td class="text-muted fs-12">{{ pedido.fecha_pedido|date:"d/m/Y" }}</td>
+        <td class="text-muted fs-12">{{ pedido.fecha_entrega|date:"d/m/Y"|default:"—" }}</td>
+        <td class="text-muted fs-12">{{ pedido.registrado_por.get_full_name|default:pedido.registrado_por.username|default:"—" }}</td>
+        <td>
+          <a href="{% url 'detalle_pedido' pedido.pk %}" class="btn btn-sm btn-secondary">Ver →</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="card">
+  <div class="empty-state">
+    <div class="icon">🛒</div>
+    <p>No hay pedidos registrados.</p>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}

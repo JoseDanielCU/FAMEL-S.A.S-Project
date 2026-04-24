@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+
+{% block title %}Crear Pedido{% endblock %}
+{% block page_title %}Crear Pedido{% endblock %}
+{% block page_sub %}HU5 — Registro de pedido con múltiples productos{% endblock %}
+
+{% block content %}
+
+<form method="post" id="pedido-form">
+  {% csrf_token %}
+  {{ formset.management_form }}
+
+  <div class="grid-2" style="align-items: start;">
+
+    <!-- ── Panel izquierdo: Datos del pedido ── -->
+    <div class="card">
+      <div class="card-title">📝 Datos del Pedido</div>
+
+      <!-- Cliente -->
+      <div class="field mb-4">
+        <label for="{{ form.cliente.id_for_label }}">Cliente *</label>
+        {{ form.cliente }}
+        {% if form.cliente.errors %}
+          <ul class="errorlist">{% for e in form.cliente.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+        {% endif %}
+        <div style="margin-top: 6px;">
+          <a href="{% url 'crear_cliente' %}" style="font-size: 11px; color: var(--orange);">
+            ＋ Registrar nuevo cliente
+          </a>
+        </div>
+      </div>
+
+      <!-- Fecha de entrega -->
+      <div class="field mb-4">
+        <label for="{{ form.fecha_entrega.id_for_label }}">Entrega estimada</label>
+        {{ form.fecha_entrega }}
+        {% if form.fecha_entrega.errors %}
+          <ul class="errorlist">{% for e in form.fecha_entrega.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+        {% endif %}
+      </div>
+
+      <!-- Observaciones -->
+      <div class="field mb-4">
+        <label for="{{ form.observaciones.id_for_label }}">Observaciones</label>
+        {{ form.observaciones }}
+        {% if form.observaciones.errors %}
+          <ul class="errorlist">{% for e in form.observaciones.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+        {% endif %}
+      </div>
+
+      <!-- Estado inicial (info) -->
+      <div class="alert alert-info" style="margin-top: 4px;">
+        ⏳ Estado inicial: <strong>PENDIENTE</strong>
+      </div>
+
+    </div>
+
+    <!-- ── Panel derecho: Ítems del pedido ── -->
+    <div class="card">
+      <div class="card-title">📦 Productos del Pedido</div>
+
+      <!-- Errores generales del formset -->
+      {% if formset.non_form_errors %}
+        <div class="alert alert-error mb-4">
+          {% for e in formset.non_form_errors %}❌ {{ e }}{% endfor %}
+        </div>
+      {% endif %}
+
+      <!-- Ítems del formset -->
+      <div id="formset-container">
+        {% for item_form in formset %}
+        <div class="formset-item" id="item-{{ forloop.counter0 }}">
+          {{ item_form.id }}  {# campo hidden necesario para edición #}
+
+          <!-- Checkbox DELETE (oculto, usado al eliminar) -->
+          <div style="display:none;">{{ item_form.DELETE }}</div>
+
+          <div class="formset-item-header">
+            Ítem {{ forloop.counter }}
+            {% if not forloop.first %}
+              <button type="button" class="btn-remove-item" onclick="removeItem(this)">✕ Quitar</button>
+            {% endif %}
+          </div>
+
+          <div class="form-grid cols-1">
+            <div class="field">
+              <label>Producto *</label>
+              {{ item_form.producto }}
+              {% if item_form.producto.errors %}
+                <ul class="errorlist">{% for e in item_form.producto.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+              {% endif %}
+            </div>
+            <div class="field">
+              <label>Cantidad *</label>
+              {{ item_form.cantidad }}
+              {% if item_form.cantidad.errors %}
+                <ul class="errorlist">{% for e in item_form.cantidad.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+              {% endif %}
+            </div>
+            <div class="field">
+              <label>Especificación</label>
+              {{ item_form.especificacion }}
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Botón para agregar ítem -->
+      <button type="button" id="btn-add-item" class="btn btn-secondary mt-3">
+        ➕ Agregar ítem
+      </button>
+    </div>
+
+  </div><!-- grid-2 -->
+
+  <!-- Botones de acción -->
+  <div class="form-actions" style="margin-top: 20px;">
+    <button type="submit" class="btn btn-primary">💾 Crear Pedido</button>
+    <a href="{% url 'lista_pedidos' %}" class="btn btn-secondary">Cancelar</a>
+  </div>
+
+</form>
+
+{% endblock %}
+
+
+{% block extra_js %}
+<script>
+/**
+ * Gestión dinámica del formset de ítems de pedido.
+ * Agrega y elimina filas sin recargar la página.
+ */
+
+// Número total de formularios en el formset (lo controla Django)
+let formCount = parseInt(document.querySelector('#id_items-TOTAL_FORMS').value);
+
+// Función: agregar nuevo ítem
+document.getElementById('btn-add-item').addEventListener('click', function () {
+  const container = document.getElementById('formset-container');
+
+  // Clonar el primer ítem como plantilla
+  const firstItem = container.querySelector('.formset-item');
+  const newItem   = firstItem.cloneNode(true);
+
+  newItem.id = `item-${formCount}`;
+
+  // Actualizar atributos name/id/for con el nuevo índice
+  newItem.innerHTML = newItem.innerHTML
+    .replace(/items-\d+-/g, `items-${formCount}-`)
+    .replace(/id_items-\d+-/g, `id_items-${formCount}-`);
+
+  // Limpiar valores del ítem clonado
+  newItem.querySelectorAll('input, select, textarea').forEach(el => {
+    if (el.type !== 'hidden' || el.name.includes('DELETE')) {
+      el.value = '';
+    }
+  });
+
+  // Actualizar el header con el número correcto
+  const header = newItem.querySelector('.formset-item-header');
+  header.innerHTML = `Ítem ${formCount + 1} <button type="button" class="btn-remove-item" onclick="removeItem(this)">✕ Quitar</button>`;
+
+  container.appendChild(newItem);
+
+  // Incrementar el contador del management form
+  formCount++;
+  document.querySelector('#id_items-TOTAL_FORMS').value = formCount;
+});
+
+// Función: quitar un ítem marcándolo para eliminación
+function removeItem(btn) {
+  const item        = btn.closest('.formset-item');
+  const deleteField = item.querySelector('input[name$="-DELETE"]');
+
+  if (deleteField) {
+    // Si existe el campo DELETE, marcar para eliminar (sin borrar el DOM)
+    deleteField.checked = true;
+    item.style.opacity  = '0.35';
+    item.style.pointerEvents = 'none';
+    btn.textContent = '✓ Marcado para eliminar';
+  } else {
+    // Si es un ítem nuevo sin ID, simplemente quitar del DOM
+    item.remove();
+    formCount--;
+    document.querySelector('#id_items-TOTAL_FORMS').value = formCount;
+  }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}Clientes{% endblock %}
+{% block page_title %}Clientes{% endblock %}
+{% block page_sub %}HU5 — Directorio de clientes registrados{% endblock %}
+
+{% block topbar_actions %}
+  <a href="{% url 'crear_cliente' %}" class="btn btn-primary">➕ Nuevo Cliente</a>
+{% endblock %}
+
+{% block content %}
+
+<!-- Búsqueda -->
+<form method="get" class="filter-bar">
+  <input type="text" name="q" value="{{ busqueda }}" placeholder="🔍 Buscar por nombre o NIT...">
+  <button type="submit" class="btn btn-secondary">Buscar</button>
+  {% if busqueda %}
+    <a href="{% url 'lista_clientes' %}" class="btn btn-secondary">✕ Limpiar</a>
+  {% endif %}
+</form>
+
+{% if clientes %}
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Nombre / Razón social</th>
+        <th>NIT</th>
+        <th>Teléfono</th>
+        <th>Correo</th>
+        <th>Dirección</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for cliente in clientes %}
+      <tr>
+        <td class="fw-700">{{ cliente.nombre }}</td>
+        <td class="text-mono text-muted fs-12">{{ cliente.nit|default:"—" }}</td>
+        <td class="text-muted fs-12">{{ cliente.telefono|default:"—" }}</td>
+        <td class="text-muted fs-12">{{ cliente.email|default:"—" }}</td>
+        <td class="text-muted fs-12">{{ cliente.direccion|default:"—" }}</td>
+        <td>
+          <div class="actions">
+            <a href="{% url 'editar_cliente' cliente.pk %}" class="btn btn-sm btn-secondary">✏️ Editar</a>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="card">
+  <div class="empty-state">
+    <div class="icon">👥</div>
+    <p>No hay clientes registrados{% if busqueda %} para "{{ busqueda }}"{% endif %}.</p>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}

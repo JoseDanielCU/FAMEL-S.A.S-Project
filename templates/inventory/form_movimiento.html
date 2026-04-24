@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block title %}Nuevo Movimiento{% endblock %}
+{% block page_title %}Registrar Movimiento de Inventario{% endblock %}
+{% block page_sub %}HU2 — El stock se actualiza automáticamente al guardar{% endblock %}
+
+{% block content %}
+
+<div class="card" style="max-width: 600px;">
+
+  <!-- Info aclaratoria -->
+  <div class="alert alert-info" style="margin-bottom: 20px;">
+    ℹ️ <strong>Tipos:</strong>
+    <strong>Entrada</strong> suma al stock ·
+    <strong>Salida</strong> resta del stock ·
+    <strong>Ajuste</strong> fija el stock al valor exacto
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+
+    <div class="form-grid">
+
+      <!-- Producto (columna completa) -->
+      <div class="field full">
+        <label for="{{ form.producto.id_for_label }}">Producto *</label>
+        {{ form.producto }}
+        {% if form.producto.errors %}
+          <ul class="errorlist">{% for e in form.producto.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+        {% endif %}
+      </div>
+
+      <!-- Tipo -->
+      <div class="field">
+        <label for="{{ form.tipo.id_for_label }}">Tipo de movimiento *</label>
+        {{ form.tipo }}
+        {% if form.tipo.errors %}
+          <ul class="errorlist">{% for e in form.tipo.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+        {% endif %}
+      </div>
+
+      <!-- Cantidad -->
+      <div class="field">
+        <label for="{{ form.cantidad.id_for_label }}">Cantidad *</label>
+        {{ form.cantidad }}
+        {% if form.cantidad.errors %}
+          <ul class="errorlist">{% for e in form.cantidad.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+        {% endif %}
+      </div>
+
+      <!-- Fecha -->
+      <div class="field full">
+        <label for="{{ form.fecha.id_for_label }}">Fecha y hora</label>
+        {{ form.fecha }}
+        {% if form.fecha.errors %}
+          <ul class="errorlist">{% for e in form.fecha.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+        {% endif %}
+      </div>
+
+      <!-- Observación (columna completa) -->
+      <div class="field full">
+        <label for="{{ form.observacion.id_for_label }}">Observación</label>
+        {{ form.observacion }}
+        {% if form.observacion.errors %}
+          <ul class="errorlist">{% for e in form.observacion.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+        {% endif %}
+      </div>
+
+    </div>
+
+    <!-- Errores generales del formulario -->
+    {% if form.non_field_errors %}
+      <div class="alert alert-error" style="margin-top: 12px;">
+        {% for e in form.non_field_errors %}❌ {{ e }}{% endfor %}
+      </div>
+    {% endif %}
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">💾 Registrar Movimiento</button>
+      <a href="{% url 'lista_movimientos' %}" class="btn btn-secondary">Cancelar</a>
+    </div>
+
+  </form>
+</div>
+
+{% endblock %}

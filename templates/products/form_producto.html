@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ accion }} Producto{% endblock %}
+{% block page_title %}{{ accion }} Producto{% endblock %}
+{% block page_sub %}HU1 — Registro de productos y materias primas{% endblock %}
+
+{% block content %}
+
+<div class="card" style="max-width: 640px;">
+
+  <form method="post">
+    {% csrf_token %}
+
+    <div class="form-grid">
+
+      <!-- Nombre (columna completa) -->
+      <div class="field full">
+        <label for="{{ form.nombre.id_for_label }}">Nombre *</label>
+        {{ form.nombre }}
+        {% if form.nombre.errors %}
+          <ul class="errorlist">{% for e in form.nombre.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+        {% endif %}
+      </div>
+
+      <!-- Tipo -->
+      <div class="field">
+        <label for="{{ form.tipo.id_for_label }}">Tipo *</label>
+        {{ form.tipo }}
+        {% if form.tipo.errors %}
+          <ul class="errorlist">{% for e in form.tipo.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+        {% endif %}
+      </div>
+
+      <!-- Unidad -->
+      <div class="field">
+        <label for="{{ form.unidad.id_for_label }}">Unidad de medida *</label>
+        {{ form.unidad }}
+        {% if form.unidad.errors %}
+          <ul class="errorlist">{% for e in form.unidad.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+        {% endif %}
+      </div>
+
+      <!-- Stock actual -->
+      <div class="field">
+        <label for="{{ form.stock_actual.id_for_label }}">Stock inicial *</label>
+        {{ form.stock_actual }}
+        {% if form.stock_actual.errors %}
+          <ul class="errorlist">{% for e in form.stock_actual.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+        {% endif %}
+      </div>
+
+      <!-- Stock mínimo -->
+      <div class="field">
+        <label for="{{ form.stock_minimo.id_for_label }}">Stock mínimo (alerta)</label>
+        {{ form.stock_minimo }}
+        {% if form.stock_minimo.errors %}
+          <ul class="errorlist">{% for e in form.stock_minimo.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+        {% endif %}
+      </div>
+
+      <!-- Descripción (columna completa) -->
+      <div class="field full">
+        <label for="{{ form.descripcion.id_for_label }}">Descripción</label>
+        {{ form.descripcion }}
+        {% if form.descripcion.errors %}
+          <ul class="errorlist">{% for e in form.descripcion.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+        {% endif %}
+      </div>
+
+    </div><!-- form-grid -->
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">
+        {% if accion == 'Crear' %}➕ Crear Producto{% else %}💾 Guardar Cambios{% endif %}
+      </button>
+      <a href="{% url 'lista_productos' %}" class="btn btn-secondary">Cancelar</a>
+    </div>
+
+  </form>
+</div>
+
+{% endblock %}
